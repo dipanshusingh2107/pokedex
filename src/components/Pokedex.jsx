@@ -8,25 +8,47 @@ import { useSearchParams } from 'react-router-dom';
 
 const Pokedex = () => {
 
-    const [page , setPage] = useState({
-        totalCount:1281,
-        totalPages:0,
-        currentPage:1,
-        currentOffset:0, // (currentPage-1)*limit
-        limit:10
-    });
-
-
-    const {data , loading,setRange} = useSearchPokemonIdRange(1,page.limit);
     const [searchParams, ] = useSearchParams();
 
-    function isValidPage(value) {
-        if(value==0)
-        return false;
-        return /^\d+$/.test(value);//only for +ve whole numbers
+
+    const generateInitialPage = ()=>{
+
+        function isValidPage(value) {
+            return /^\d+$/.test(value);//only for +ve whole numbers
+        }
+
+        const initialPage = {
+            totalCount:1281,
+            totalPages:0,
+            currentPage: 1,
+            currentOffset:0, // (currentPage-1)*limit
+            limit:10
+        }
+        
+        let pageParam = searchParams.get('page');
+        if(isValidPage(pageParam) && pageParam>0 && pageParam <= 129){
+            pageParam = parseInt(pageParam);
+            initialPage.currentPage = pageParam;
+            initialPage.currentOffset = (pageParam-1)*initialPage.limit;
+        }
+
+        return initialPage;
+
     }
 
 
+    const [page , setPage] = useState(generateInitialPage());
+
+
+    const {data , loading,setRange} = useSearchPokemonIdRange((page.currentPage-1) * page.limit + 1, page.currentPage*page.limit);
+    
+
+    
+
+    useEffect(()=>{
+        setRange({start:page.currentOffset+1 , end:page.currentOffset+page.limit});
+        window.scrollTo(0,0);
+    } , [page.currentPage])
 
     useEffect(()=>{
 
@@ -35,14 +57,6 @@ const Pokedex = () => {
             const {totalPages , totalCount} = await totalPagesAndCount(page.limit);
             updatedPage.totalPages = totalPages;
             updatedPage.totalCount = totalCount;
-
-            
-            const pageParam = searchParams.get('page');
-            if(pageParam <= totalPages){
-                updatedPage.currentPage = pageParam;
-                updatedPage.currentOffset = (pageParam-1)*page.limit;
-                setRange({start:updatedPage.currentOffset+1 , end:updatedPage.currentOffset+updatedPage.limit});
-            }
             setPage(updatedPage);
         }
         setter();
@@ -61,7 +75,6 @@ const Pokedex = () => {
         update.currentOffset = page.currentOffset+page.limit;
         
         setPage(update);
-        setRange({start:update.currentOffset+1,end:update.currentOffset+update.limit});
     }
 
 
@@ -74,7 +87,6 @@ const Pokedex = () => {
         update.currentOffset = page.currentOffset-page.limit;
         
         setPage(update);
-        setRange({start:update.currentOffset+1,end:update.currentOffset+update.limit});
     }
     
     return ( 

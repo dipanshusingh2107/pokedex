@@ -8,7 +8,7 @@ const PaginationButtons = (props) => {
         <nav aria-label="Page navigation example">
             <ul className="pagination justify-content-center">
                 <li className={page.currentPage==1?"page-item disabled":"page-item"}>
-                <a className="page-link" href="#" tabIndex="-1" aria-disabled="true" onClick={handlePrevious}>Previous</a>
+                <a className="page-link" tabIndex="-1" aria-disabled="true" onClick={handlePrevious}>Previous</a>
                 </li>
                 
                 <li className="page-item">
@@ -18,7 +18,7 @@ const PaginationButtons = (props) => {
                 </li>
 
                 <li className={page.currentPage==page.totalPages?"page-item disabled":"page-item"}>
-                <a className="page-link" href="#" onClick={handleNext} aria-disabled="true">Next</a>
+                <a className="page-link" onClick={handleNext} aria-disabled="true">Next</a>
                 </li>
             </ul>
         </nav>
